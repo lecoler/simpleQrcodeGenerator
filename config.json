@@ -1,0 +1,9 @@
+{
+  "icon": "./static/test.jpg",
+  "fgColor": "black",
+  "bgColor": "white",
+  "width": 250,
+  "height": 250,
+  "data": "This is a dome!",
+  "fileName": ""
+}
