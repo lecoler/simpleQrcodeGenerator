@@ -4,6 +4,7 @@ node_modules
 
 # static
 /static/*
+!/static/dome.png
 
 # local env files
 .env.local
