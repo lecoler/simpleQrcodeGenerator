@@ -11,7 +11,7 @@ npm run start
 ```
 
 #### config
-```js
+```
 {
   "icon": "./static/test.jpg",    //centre icon
   "fgColor": "black",             //qr code color
