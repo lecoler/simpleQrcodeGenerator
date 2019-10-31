@@ -3,10 +3,17 @@ const fs = require('fs');
 const path = require('path');
 const qrCode = require('./libs/index.js');
 const config = require('./config.json');
-const outDir = path.resolve(__dirname,'./dist');
+const outDir = path.resolve(__dirname, './outFiles');
+let fileType = config.fileType && config.fileType.toLowerCase();
 
 //画板
-const canvas = createCanvas(config.width, config.height);
+let canvas = null;
+if (fileType === 'pdf' || fileType === 'svg') {
+    canvas = createCanvas(config.width, config.height, fileType);
+} else {
+    canvas = createCanvas(config.width, config.height);
+}
+
 const ctx = canvas.getContext('2d');
 ctx.scale(1, 1);
 
@@ -39,14 +46,41 @@ icon.src = config.icon;
 // console.log(canvas.toDataURL('image/png'));
 
 //判断输出目录是否存在
-if (!fs.existsSync(outDir)){
+if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir);
 }
 
 //输出
-const out = fs.createWriteStream(path.resolve(outDir , `./${config.fileName || Date.now()}.png`));
-const stream = canvas.createPNGStream();
-stream.pipe(out);
+let stream = null;
+let buffer = null;
+switch (fileType) {
+    case 'jpeg':
+        stream = canvas.createJPEGStream();
+        break;
+    case 'pdf':
+        canvas.toBuffer();
+        stream = canvas.createPDFStream();
+        break;
+    case 'svg':
+        buffer = canvas.toBuffer();
+        break;
+    default:
+        fileType = 'png';
+        stream = canvas.createPNGStream();
+        break;
+}
 
-//完成
-out.on('finish', () => console.log(`The ${config.fileName || Date.now()}.png file was created.`));
+const filePath = path.resolve(outDir, `./${config.fileName || Date.now()}.${fileType}`);
+if (stream) {
+    const out = fs.createWriteStream(filePath);
+    stream.pipe(out);
+
+    //完成
+    out.on('finish', () => console.log(`The ${config.fileName || Date.now()}.${fileType} file was created.`));
+} else if (buffer) {
+    fs.writeFileSync(filePath, buffer);
+    console.log(`The ${config.fileName || Date.now()}.${fileType} file was created.`);
+
+}
+
+
