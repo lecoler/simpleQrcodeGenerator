@@ -19,9 +19,10 @@ npm run start
   "width": 250,                   //qr code width
   "height": 250,                  //qr code height
   "data": "This is a dome!",      //Scan code information
-  "fileName": ""                  //saved file name
+  "fileName": "",                 //saved file name
+  "fileType": "png"               //saved file type, defaults png, support 'png' 'jpeg' 'pdf' 'svg'
 }
 ```
 
-##### Tip: The output file defaults to the dist directory.
+##### Tip: The output file defaults to the `outFiles` directory.
 
