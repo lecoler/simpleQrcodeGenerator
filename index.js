@@ -2,22 +2,24 @@ const {createCanvas, Image} = require('canvas');
 const fs = require('fs');
 const path = require('path');
 const qrCode = require('./libs/index.js');
+// 配置文件
 const config = require('./config.json');
+// 输出目录
 const outDir = path.resolve(__dirname, './outFiles');
+// 输出文件类型
 let fileType = config.fileType && config.fileType.toLowerCase();
 
-//画板
+// 画板
 let canvas = null;
 if (fileType === 'pdf' || fileType === 'svg') {
     canvas = createCanvas(config.width, config.height, fileType);
 } else {
     canvas = createCanvas(config.width, config.height);
 }
-
 const ctx = canvas.getContext('2d');
 ctx.scale(1, 1);
 
-//生成二维码
+// 生成二维码
 const myQrCode = qrCode(config.data);
 const cells = myQrCode.modules;
 const tileW = config.width / cells.length;
@@ -31,26 +33,29 @@ cells.forEach((row, rdx) => {
     });
 });
 
-//插入icon图片
-const icon_width = Math.floor(canvas.width / 4);
-const icon_height = Math.floor(canvas.height / 4);
-const icon = new Image();
-icon.onload = () => {
-    const dx = canvas.width / 2 - icon_width / 2;
-    const dy = canvas.height / 2 - icon_height / 2;
-    ctx.drawImage(icon, dx, dy, icon_width, icon_height);
-};
-icon.src = config.icon;
+// 插入icon图片
+if (config.icon) {
+    const icon_width = Math.floor(canvas.width / 4);
+    const icon_height = Math.floor(canvas.height / 4);
+    const icon = new Image();
+    icon.onload = () => {
+        const dx = canvas.width / 2 - icon_width / 2;
+        const dy = canvas.height / 2 - icon_height / 2;
+        ctx.drawImage(icon, dx, dy, icon_width, icon_height);
+    };
+    icon.src = config.icon;
+}
+
 
 // base64
 // console.log(canvas.toDataURL('image/png'));
 
-//判断输出目录是否存在
+// 判断输出目录是否存在
 if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir);
 }
 
-//输出
+// 输出 流/buffer
 let stream = null;
 let buffer = null;
 switch (fileType) {
@@ -70,17 +75,15 @@ switch (fileType) {
         break;
 }
 
+// 完成输出文件
 const filePath = path.resolve(outDir, `./${config.fileName || Date.now()}.${fileType}`);
 if (stream) {
     const out = fs.createWriteStream(filePath);
     stream.pipe(out);
-
-    //完成
     out.on('finish', () => console.log(`The ${config.fileName || Date.now()}.${fileType} file was created.`));
 } else if (buffer) {
     fs.writeFileSync(filePath, buffer);
     console.log(`The ${config.fileName || Date.now()}.${fileType} file was created.`);
-
 }
 
 
