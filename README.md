@@ -13,6 +13,7 @@ npm run start
 #### config
 ```
 {
+  "type": "qrCode",               //code type, defaults qrCode, support 'qrCode' 'barCode' 
   "icon": "./static/test.jpg",    //centre icon
   "fgColor": "black",             //qr code color
   "bgColor": "white",             //qr code background color

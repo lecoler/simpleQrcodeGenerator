@@ -1,4 +1,5 @@
 const {createCanvas, Image} = require('canvas');
+const jsbarcode = require('jsbarcode');
 const fs = require('fs');
 const path = require('path');
 const qrCode = require('./libs/index.js');
@@ -9,6 +10,7 @@ const outDir = path.resolve(__dirname, './outFiles');
 // 输出文件类型
 let fileType = config.fileType && config.fileType.toLowerCase();
 
+
 // 画板
 let canvas = null;
 if (fileType === 'pdf' || fileType === 'svg') {
@@ -16,34 +18,43 @@ if (fileType === 'pdf' || fileType === 'svg') {
 } else {
     canvas = createCanvas(config.width, config.height);
 }
-const ctx = canvas.getContext('2d');
-ctx.scale(1, 1);
+
+// 条形码生成
+if (config.type == 'barCode') {
+    jsbarcode(canvas, config.data,{
+        background: config.bgColor,
+        lineColor: config.fgColor
+    })
+} else {
+    const ctx = canvas.getContext('2d');
+    ctx.scale(1, 1);
 
 // 生成二维码
-const myQrCode = qrCode(config.data);
-const cells = myQrCode.modules;
-const tileW = config.width / cells.length;
-const tileH = config.height / cells.length;
-cells.forEach((row, rdx) => {
-    row.forEach((cell, cdx) => {
-        ctx.fillStyle = cell ? config.fgColor : config.bgColor;
-        const w = (Math.ceil((cdx + 1) * tileW) - Math.floor(cdx * tileW));
-        const h = (Math.ceil((rdx + 1) * tileH) - Math.floor(rdx * tileH));
-        ctx.fillRect(Math.round(cdx * tileW), Math.round(rdx * tileH), w, h);
+    const myQrCode = qrCode(config.data);
+    const cells = myQrCode.modules;
+    const tileW = config.width / cells.length;
+    const tileH = config.height / cells.length;
+    cells.forEach((row, rdx) => {
+        row.forEach((cell, cdx) => {
+            ctx.fillStyle = cell ? config.fgColor : config.bgColor;
+            const w = (Math.ceil((cdx + 1) * tileW) - Math.floor(cdx * tileW));
+            const h = (Math.ceil((rdx + 1) * tileH) - Math.floor(rdx * tileH));
+            ctx.fillRect(Math.round(cdx * tileW), Math.round(rdx * tileH), w, h);
+        });
     });
-});
 
 // 插入icon图片
-if (config.icon) {
-    const icon_width = Math.floor(canvas.width / 4);
-    const icon_height = Math.floor(canvas.height / 4);
-    const icon = new Image();
-    icon.onload = () => {
-        const dx = canvas.width / 2 - icon_width / 2;
-        const dy = canvas.height / 2 - icon_height / 2;
-        ctx.drawImage(icon, dx, dy, icon_width, icon_height);
-    };
-    icon.src = config.icon;
+    if (config.icon) {
+        const icon_width = Math.floor(canvas.width / 4);
+        const icon_height = Math.floor(canvas.height / 4);
+        const icon = new Image();
+        icon.onload = () => {
+            const dx = canvas.width / 2 - icon_width / 2;
+            const dy = canvas.height / 2 - icon_height / 2;
+            ctx.drawImage(icon, dx, dy, icon_width, icon_height);
+        };
+        icon.src = config.icon;
+    }
 }
 
 

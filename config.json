@@ -1,10 +1,11 @@
 {
+  "type": "barCode",
   "icon": "./static/dome.png",
-  "fgColor": "black",
+  "fgColor": "blue",
   "bgColor": "white",
   "width": 250,
   "height": 250,
   "data": "This is a dome!",
   "fileName": "",
-  "fileType": "svg"
+  "fileType": "png"
 }
