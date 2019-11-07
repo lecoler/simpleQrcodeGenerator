@@ -3,8 +3,8 @@
   "icon": "./static/dome.png",
   "fgColor": "blue",
   "bgColor": "white",
-  "width": 250,
-  "height": 250,
+  "width": 2,
+  "height": 100,
   "data": "This is a dome!",
   "fileName": "",
   "fileType": "png"

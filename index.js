@@ -19,17 +19,21 @@ if (fileType === 'pdf' || fileType === 'svg') {
     canvas = createCanvas(config.width, config.height);
 }
 
+
 // 条形码生成
 if (config.type == 'barCode') {
-    jsbarcode(canvas, config.data,{
+    jsbarcode(canvas, config.data, {
         background: config.bgColor,
-        lineColor: config.fgColor
-    })
+        lineColor: config.fgColor,
+        width: config.width,
+        height: config.height,
+        text: undefined
+    });
 } else {
     const ctx = canvas.getContext('2d');
     ctx.scale(1, 1);
 
-// 生成二维码
+    // 生成二维码
     const myQrCode = qrCode(config.data);
     const cells = myQrCode.modules;
     const tileW = config.width / cells.length;
@@ -42,13 +46,12 @@ if (config.type == 'barCode') {
             ctx.fillRect(Math.round(cdx * tileW), Math.round(rdx * tileH), w, h);
         });
     });
-
-// 插入icon图片
+    // 插入icon图片
     if (config.icon) {
-        const icon_width = Math.floor(canvas.width / 4);
-        const icon_height = Math.floor(canvas.height / 4);
         const icon = new Image();
         icon.onload = () => {
+            const icon_width = Math.floor(canvas.width / 4);
+            const icon_height = Math.floor(canvas.height / 4);
             const dx = canvas.width / 2 - icon_width / 2;
             const dy = canvas.height / 2 - icon_height / 2;
             ctx.drawImage(icon, dx, dy, icon_width, icon_height);
