@@ -17,7 +17,7 @@ const config = {
     };
 
 // 输出文件类型
-let fileType = config.fileType
+let fileType = config.fileType;
 
 
 // 画板
