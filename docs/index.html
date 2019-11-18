@@ -1,12 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta charset="UTF-8">
     <title>生成二维码/条形码</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="./css/base.css">
+    <link rel="stylesheet" type="text/css" href="./css/index.css">
 </head>
-<body>
-123
+<body class="over-hidden">
+<div class="layui-form" lay-filter="form">
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">数据</label>
+        <div class="layui-input-block">
+            <textarea name="data" placeholder="请输入内容" required lay-verify="required" class="layui-textarea"></textarea>
+        </div>
+    </div>
 
-<script src="index.js"></script>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">类型</label>
+        <div class="layui-input-block">
+            <input type="radio" name="type" lay-filter="codeType" value="barCode" title="条形码">
+            <input type="radio" name="type" lay-filter="codeType" value="qrCode" title="二维码" checked>
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text" id="logo">
+        <label class="layui-form-label">logo图片</label>
+        <div class="layui-input-inline">
+            <input type="file" accept="image/png, image/jpg" onchange="selectImg(event)">
+        </div>
+        <div class="layui-form-mid layui-word-aux">显示在二维码中间</div>
+    </div>
+
+
+    <div class="layui-form-item layui-form-text">
+        <div class="layui-inline">
+            <label class="layui-form-label">宽</label>
+            <div class="layui-input-inline">
+                <input type="number" name="width" placeholder="请输入" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">高</label>
+            <div class="layui-input-inline">
+                <input type="number" name="height" placeholder="请输入" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <div class="layui-inline">
+            <label class="layui-form-label">code颜色</label>
+            <div id="fgColor"></div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">背景颜色</label>
+            <div id="bgColor"></div>
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">图片类型</label>
+        <div class="layui-input-block">
+            <input type="radio" name="fileType" value="png" title="png" checked>
+            <input type="radio" name="fileType" value="jpeg" title="jpeg">
+            <input type="radio" name="fileType" value="pdf" title="pdf">
+            <input type="radio" name="fileType" value="svg" title="svg">
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text" id="mode">
+        <label class="layui-form-label">未知模式</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="mode" lay-skin="switch" lay-text="ON|OFF">
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="create">生成</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</div>
+
+<script src="./js/code.js"></script>
+<script src="./layui/layui.all.js"></script>
+<script>
+    const config = {
+        type: 'qrCode',
+        icon: '',
+        fgColor: 'black',
+        bgColor: 'white',
+        width: 250,
+        height: 250,
+        data: 'This is a dome!',
+        fileName: '',
+        fileType: 'jpeg'
+    };
+    console.log(le.createCode(config));
+    const mode = document.getElementById('mode');
+    const logo = document.getElementById('logo');
+    let {form, colorpicker, layer} = layui;
+
+    form.val('form', {
+        width: 250,
+        height: 250
+    });
+
+    form.on('radio(codeType)', function ({value}) {
+        if (value == 'qrCode') {
+            form.val('form', {
+                width: 250,
+                height: 250
+            });
+            mode.style.display = 'block';
+            logo.style.display = 'block';
+        } else {
+            form.val('form', {
+                width: 2,
+                height: 100
+            });
+            mode.style.display = 'none';
+            logo.style.display = 'none';
+        }
+    });
+    colorpicker.render({
+        elem: '#fgColor',
+        color: 'black',
+        done: function (color) {
+            config.fgColor = color;
+        }
+    });
+    colorpicker.render({
+        elem: '#bgColor',
+        color: 'white',
+        done: function (color) {
+            config.bgColor = color;
+        }
+    });
+
+    function selectImg(e){
+        let files = e.target.files || e.dataTransfer.files;
+        if (!files.length) return;
+        const img = files[0];
+        if (img.size / 1024 > 5000) {
+            layer.msg('图片过大不支持');
+        } else {
+            //判断支不支持FileReader
+            if (!img || !window.FileReader) return;
+            if (/^image/.test(img.type)) {
+                //创建一个reader
+                let reader = new FileReader();
+                //将图片转成base64格式
+                reader.readAsDataURL(img);
+                //读取成功后的回调
+                reader.onloadend = function () {
+                    let result = this.result;
+                    config.icon = result;
+                };
+            }
+        }
+    }
+    form.on('submit(create)', function ({field}) {
+        Object.assign(config, field);
+        console.log(config);
+        return false;
+    });
+
+</script>
 </body>
 </html>
