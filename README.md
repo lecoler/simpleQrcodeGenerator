@@ -1,5 +1,8 @@
 # Simple QR code generator
 
+### Online experience
+[Preview](https://lecoler.github.io/simpleQrcodeGenerator/)  
+
 ### install
 ```shell
 npm install
