@@ -4756,6 +4756,7 @@ const config = {
 le.createCode = function le_createCode(config){
 	// 输出文件类型
 	let fileType = config.fileType && config.fileType.toLowerCase();
+	config.fileName || (config.fileName = Date.now());
 
 
 // 画板
@@ -4781,7 +4782,9 @@ le.createCode = function le_createCode(config){
 		ctx.scale(1, 1);
 
 		// 生成二维码
-		const myQrCode = qrCode(config.data);
+		const myQrCode = qrCode(config.data,{
+			typeNumber:  config.mode ? 6 : -1
+		})
 		const cells = myQrCode.modules;
 		const tileW = config.width / cells.length;
 		const tileH = config.height / cells.length;
@@ -4807,6 +4810,16 @@ le.createCode = function le_createCode(config){
 		}
 	}
 
+
+	const code = document.getElementById('code');
+	const item = document.createElement('div');
+	item.setAttribute('class','item');
+	const title = document.createElement('div');
+	const fileName = `${config.fileName}.${config.fileType}`
+	title.innerText = fileName;
+	item.appendChild(canvas);
+	item.appendChild(title);
+	code.appendChild(item);
 // base64
 	let base64 = '';
 	switch (fileType) {
@@ -4814,38 +4827,18 @@ le.createCode = function le_createCode(config){
 			base64 = canvas.toDataURL('image/jpeg');
 			break;
 		case 'pdf':
-			canvas.toBuffer();
-			stream = canvas.createPDFStream();
+			// canvas.toBuffer();
+			// stream = canvas.createPDFStream();
 			break;
 		case 'svg':
-			buffer = canvas.toBuffer();
+			// buffer = canvas.toBuffer();
 			break;
 		default:
 			fileType = 'png';
 			base64 = canvas.toDataURL('image/png');
 			break;
 	}
-// 输出 流/buffer
-	let stream = null;
-	let buffer = null;
-	switch (fileType) {
-		case 'jpeg':
-			stream = canvas.createJPEGStream();
-			break;
-		case 'pdf':
-			canvas.toBuffer();
-			stream = canvas.createPDFStream();
-			break;
-		case 'svg':
-			buffer = canvas.toBuffer();
-			break;
-		default:
-			fileType = 'png';
-			stream = canvas.createPNGStream();
-			break;
-	}
-
-	return base64;
+	return {base64,fileName};
 }
 
 

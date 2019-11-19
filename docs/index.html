@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="./layui/css/layui.css">
     <link rel="stylesheet" type="text/css" href="./css/base.css">
     <link rel="stylesheet" type="text/css" href="./css/index.css">
+    <link rel="shortcut icon" href="/favicon.ico">
 </head>
-<body class="over-hidden">
-<div class="layui-form" lay-filter="form">
+<body class="over-scroll">
+<form class="layui-form" lay-filter="form">
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">数据</label>
         <div class="layui-input-block">
@@ -39,13 +40,13 @@
         <div class="layui-inline">
             <label class="layui-form-label">宽</label>
             <div class="layui-input-inline">
-                <input type="number" name="width" placeholder="请输入" autocomplete="off" class="layui-input">
+                <input type="number" name="width" placeholder="请输入" value="250" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-inline">
             <label class="layui-form-label">高</label>
             <div class="layui-input-inline">
-                <input type="number" name="height" placeholder="请输入" autocomplete="off" class="layui-input">
+                <input type="number" name="height" placeholder="请输入" value="250" autocomplete="off" class="layui-input">
             </div>
         </div>
     </div>
@@ -66,8 +67,8 @@
         <div class="layui-input-block">
             <input type="radio" name="fileType" value="png" title="png" checked>
             <input type="radio" name="fileType" value="jpeg" title="jpeg">
-            <input type="radio" name="fileType" value="pdf" title="pdf">
-            <input type="radio" name="fileType" value="svg" title="svg">
+            <input type="radio" name="fileType" value="pdf" title="pdf" disabled>
+            <input type="radio" name="fileType" value="svg" title="svg" disabled>
         </div>
     </div>
 
@@ -82,11 +83,19 @@
     <div class="layui-form-item">
         <div class="layui-input-block">
             <button class="layui-btn" lay-submit lay-filter="create">生成</button>
-            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            <button type="reset" class="layui-btn layui-btn-primary" onclick="hide()">重置</button>
         </div>
     </div>
-</div>
+</form>
+<div class="layui-card" id="codeBox" style="display: none">
+    <div class="layui-card-header">
+        <span>生成结果</span>
+        <a href="" id="download">点击下载</a>
+    </div>
+    <div class="layui-card-body flex-center-vertical flex-wrap" id="code">
 
+    </div>
+</div>
 <script src="./js/code.js"></script>
 <script src="./layui/layui.all.js"></script>
 <script>
@@ -97,19 +106,17 @@
         bgColor: 'white',
         width: 250,
         height: 250,
-        data: 'This is a dome!',
+        data: '1',
         fileName: '',
-        fileType: 'jpeg'
+        fileType: 'png',
+        mode: false
     };
-    console.log(le.createCode(config));
     const mode = document.getElementById('mode');
     const logo = document.getElementById('logo');
+    const codeBox = document.getElementById('codeBox');
+    const code = document.getElementById('code');
+    const download = document.getElementById('download');
     let {form, colorpicker, layer} = layui;
-
-    form.val('form', {
-        width: 250,
-        height: 250
-    });
 
     form.on('radio(codeType)', function ({value}) {
         if (value == 'qrCode') {
@@ -122,7 +129,8 @@
         } else {
             form.val('form', {
                 width: 2,
-                height: 100
+                height: 100,
+                mode: false
             });
             mode.style.display = 'none';
             logo.style.display = 'none';
@@ -143,7 +151,7 @@
         }
     });
 
-    function selectImg(e){
+    function selectImg(e) {
         let files = e.target.files || e.dataTransfer.files;
         if (!files.length) return;
         const img = files[0];
@@ -165,9 +173,20 @@
             }
         }
     }
+
+    function hide() {
+        codeBox.style.display = 'none';
+    }
+
     form.on('submit(create)', function ({field}) {
         Object.assign(config, field);
         console.log(config);
+        codeBox.style.display = 'block';
+        code.innerHTML = '';
+
+        const {base64,fileName} = le.createCode(config);
+        download.setAttribute('href',base64);
+        download.setAttribute('download',fileName);
         return false;
     });
 
