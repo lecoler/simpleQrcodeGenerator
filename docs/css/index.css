@@ -24,3 +24,8 @@ body{
     font-weight: 700;
     text-decoration: underline;
 }
+.layui-footer{
+    bottom: 0;
+    right: 0;
+    padding-right: 10px;
+}
