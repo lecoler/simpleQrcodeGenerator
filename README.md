@@ -1,7 +1,8 @@
 # Simple QR code generator
 
 ### Online experience
-[Preview](https://lecoler.github.io/simpleQrcodeGenerator/)  
+[Preview_1](https://lecoler.github.io/simpleQrcodeGenerator/)  
+[Preview_2](https://lecoler.gitee.io/simpleqrcodegenerator/)  
 
 ### install
 ```shell
